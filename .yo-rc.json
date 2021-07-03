@@ -1,0 +1,10 @@
+{
+  "generator-jhipster-blueprint": {
+    "promptValues": {
+      "githubName": "renanfranca",
+      "authorName": "Renan Franca",
+      "authorEmail": "renan.andradefranca@gmail.com",
+      "authorUrl": "https://br.linkedin.com/in/renan-af"
+    }
+  }
+}
