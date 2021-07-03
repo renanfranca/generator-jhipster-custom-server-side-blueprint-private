@@ -151,7 +151,7 @@ module.exports = class extends EntityGenerator {
      * @returns field
      */
     _prepareColumnFieldForTemplates(entityWithConfig, field, generator) {
-        if (field.options.column) {
+        if (field.options && field.options.column) {
             if (field.fieldNameAsDatabaseColumn === undefined) {
                 const fieldComunNameUnderscored = _.snakeCase(field.options.column);
                 const jhiFieldNamePrefix = generator.getColumnName(entityWithConfig.jhiPrefix);
