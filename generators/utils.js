@@ -27,7 +27,7 @@ const crypto = require('crypto');
 const os = require('os');
 
 const constants = require('./generator-constants');
-const FileUtils = require('../jdl/utils/file-utils');
+const FileUtils = require('generator-jhipster/jdl/utils/file-utils');
 
 const LANGUAGES_MAIN_SRC_DIR = `${__dirname}/languages/templates/${constants.CLIENT_MAIN_SRC_DIR}`;
 
@@ -65,7 +65,7 @@ module.exports = {
   languageToJavaLanguage,
 };
 
-const databaseTypes = require('../jdl/jhipster/database-types');
+const databaseTypes = require('generator-jhipster/jdl/jhipster/database-types');
 
 const SQL = databaseTypes.SQL;
 

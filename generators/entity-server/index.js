@@ -1,6 +1,7 @@
 /* eslint-disable consistent-return */
 const chalk = require('chalk');
 const EntityServerGenerator = require('generator-jhipster/generators/entity-server');
+const { writeFiles, customizeFiles } = require('./files');
 
 module.exports = class extends EntityServerGenerator {
     constructor(args, opts) {
@@ -92,8 +93,17 @@ module.exports = class extends EntityServerGenerator {
     }
 
     get writing() {
-        // Here we are not overriding this phase and hence its being handled by JHipster
-        return super._writing();
+        //Override the entire phase
+        //Change the domain, repository, service, dto, mapper, controller (resource) jhipster default packages location.
+        /**
+         * /domain/model/
+         * /domain/repository/
+         * TODO: /api/service/
+         * TODO: /api/dto/
+         * TODO: /api/dto/mapper/
+         * TODO: /api/resources/
+         */
+        return { ...writeFiles() };
     }
 
     get postWriting() {

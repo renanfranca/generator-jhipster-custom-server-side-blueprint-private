@@ -16,10 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const validationOptions = require('../jdl/jhipster/validations');
-const databaseTypes = require('../jdl/jhipster/database-types');
-const { ANGULAR_X, REACT, VUE } = require('../jdl/jhipster/client-framework-types');
-const commonPackageJson = require('./common/templates/package.json');
+const validationOptions = require('generator-jhipster/jdl/jhipster/validations');
+const databaseTypes = require('generator-jhipster/jdl/jhipster/database-types');
+const { ANGULAR_X, REACT, VUE } = require('generator-jhipster/jdl/jhipster/client-framework-types');
+const commonPackageJson = require('generator-jhipster/generators/common/templates/package.json');
 
 // Version of Java
 const JAVA_VERSION = '11'; // Java version is forced to be 11. We keep the variable as it might be useful in the future.

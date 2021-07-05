@@ -21,10 +21,10 @@ const chalk = require('chalk');
 const fs = require('fs');
 const utils = require('../utils');
 const constants = require('../generator-constants');
-const { CASSANDRA, COUCHBASE, MONGODB, NEO4J, SQL } = require('../../jdl/jhipster/database-types');
-const { ELASTICSEARCH } = require('../../jdl/jhipster/search-engine-types');
-const { MapperTypes, ServiceTypes } = require('../../jdl/jhipster/entity-options');
-const { EHCACHE, CAFFEINE, INFINISPAN, REDIS } = require('../../jdl/jhipster/cache-types');
+const { CASSANDRA, COUCHBASE, MONGODB, NEO4J, SQL } = require('generator-jhipster/jdl/jhipster/database-types');
+const { ELASTICSEARCH } = require('generator-jhipster/jdl/jhipster/search-engine-types');
+const { MapperTypes, ServiceTypes } = require('generator-jhipster/jdl/jhipster/entity-options');
+const { EHCACHE, CAFFEINE, INFINISPAN, REDIS } = require('generator-jhipster/jdl/jhipster/cache-types');
 
 const { MAPSTRUCT } = MapperTypes;
 const { SERVICE_CLASS, SERVICE_IMPL } = ServiceTypes;
@@ -69,7 +69,7 @@ const serverFiles = {
       templates: [
         {
           file: 'package/domain/Entity.java',
-          renameTo: generator => `${generator.packageFolder}/domain/${generator.asEntity(generator.entityClass)}.java`,
+          renameTo: generator => `${generator.packageFolder}/domain/model/${generator.asEntity(generator.entityClass)}.java`,
         },
       ],
     },
@@ -113,7 +113,7 @@ const serverFiles = {
       templates: [
         {
           file: 'package/repository/EntityRepository.java',
-          renameTo: generator => `${generator.packageFolder}/repository/${generator.entityClass}Repository.java`,
+          renameTo: generator => `${generator.packageFolder}/domain/repository/${generator.entityClass}Repository.java`,
         },
       ],
     },
