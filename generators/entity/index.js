@@ -84,18 +84,23 @@ module.exports = class extends EntityGenerator {
 
     get preparingFields() {
         const customPrePhaseSteps = {
-            myCustomPreInitStep() {
+            myCustomPrePreparingFieldsStep() {
                 // Stuff to do BEFORE the JHipster steps
                 const entity = this.context;
 
                 this.context.fields.forEach(field => {
-                  this._prepareColumnFieldForTemplates(entity, field, this);
+                  this._prepareColumnAnnotationFieldForTemplates(entity, field, this);
                 });
             }
         };
         const customPostPhaseSteps = {
-            myCustomPostInitStep() {
+            myCustomPostPreparingFieldsStep() {
                 // Stuff to do AFTER the JHipster steps
+                const entity = this.context;
+
+                this.context.fields.forEach(field => {
+                  this._prepareGeneratedValueAnnotationPrimaryKey(field);
+                });
             }
         };
         return {
@@ -138,6 +143,22 @@ module.exports = class extends EntityGenerator {
     get end() {
         // Here we are not overriding this phase and hence its being handled by JHipster
         return super._end();
+    }   
+
+    /**
+     * Use the custom options defined at JDL as a Custom annotations to set the database auto generated strategy.
+     * Ex:
+     * entity ExampleClasse(ExampleTable) { generatedValue(identity) id Long }
+     * 
+     * @param {*} field 
+     */
+    _prepareGeneratedValueAnnotationPrimaryKey(field) {
+        if (field.id) {
+            if (field.options && field.options.generatedValue) {
+                field.jpaGeneratedValue = field.options.generatedValue == 'identity' ? field.options.generatedValue : 'sequence';
+                field.liquibaseAutoIncrement = true;
+            }
+        }
     }
 
     /**
@@ -150,7 +171,7 @@ module.exports = class extends EntityGenerator {
      * @param {*} generator 
      * @returns field
      */
-    _prepareColumnFieldForTemplates(entityWithConfig, field, generator) {
+    _prepareColumnAnnotationFieldForTemplates(entityWithConfig, field, generator) {        
         if (field.options && field.options.column) {
             if (field.fieldNameAsDatabaseColumn === undefined) {
                 const fieldComunNameUnderscored = _.snakeCase(field.options.column);
@@ -168,7 +189,7 @@ module.exports = class extends EntityGenerator {
                   field.fieldNameAsDatabaseColumn = fieldComunNameUnderscored;
                 }
               }
-              field.columnName = field.fieldNameAsDatabaseColumn;            
+            field.columnName = field.fieldNameAsDatabaseColumn;
         }
         return field;
     }
