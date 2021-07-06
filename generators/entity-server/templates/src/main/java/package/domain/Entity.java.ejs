@@ -135,6 +135,9 @@ import static <%= packageName %>.config.Constants.ID_DELIMITER;
 import static org.springframework.data.couchbase.core.mapping.id.GenerationStrategy.UNIQUE;
 
 <%_ } _%>
+<%_ if (lombok) { _%>
+import lombok.Data;
+<%_ } _%>
 <%_ if (typeof javadoc == 'undefined') { _%>
 /**
  * A <%= persistClass %>.
@@ -169,6 +172,12 @@ import static org.springframework.data.couchbase.core.mapping.id.GenerationStrat
 <%_ } _%>
 <%_ if (searchEngineElasticsearch) { _%>
 @org.springframework.data.elasticsearch.annotations.Document(indexName = "<%= entityInstance.toLowerCase() %>")
+<%_ } _%>
+<%_ if (lombok) { _%>
+@Data()
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 <%_ } _%>
 public class <%= persistClass %> implements Serializable {
 
@@ -309,7 +318,7 @@ public class <%= persistClass %> implements Serializable {
     mappedBy = otherEntityRelationshipName.charAt(0).toLowerCase() + otherEntityRelationshipName.slice(1)
   }
 
-    // An embedded entity should not reference entities that embeds it, unless the other entity is also embedded
+// An embedded entity should not reference entities that embeds it, unless the other entity is also embedded
   if (embedded && !otherEntityIsEmbedded && ownerSide === false) {
     return;
   }
@@ -484,7 +493,8 @@ public class <%= persistClass %> implements Serializable {
 
   <%_ } _%>
 <%_ }); _%>
-    // jhipster-needle-entity-add-field - JHipster will add fields here
+<%# jhipster-needle-entity-add-field - JHipster will add fields here -%>
+<%_ if (!lombok) { _%>    
 <%_ if (!embedded) { _%>
     public <%= primaryKey.type %> get<%= primaryKey.nameCapitalized %>() {
         return <%= primaryKey.name %>;
@@ -572,7 +582,7 @@ for (const relationship of relationships) {
   const otherEntityIsEmbedded = relationship.otherEntityIsEmbedded;
   const ownerSide = relationship.ownerSide || false;
 
-        // An embedded entity should not reference entities that embeds it, unless the other entity is also embedded
+// An embedded entity should not reference entities that embeds it, unless the other entity is also embedded
   if (embedded && !otherEntityIsEmbedded && !ownerSide) {
     continue;
   }
@@ -713,7 +723,7 @@ _%>
     <%_ } _%>
   <%_ } _%>
 <%_ } _%>
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
+<%# jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here %>
 
     @Override
     public boolean equals(Object o) {
@@ -769,4 +779,5 @@ _%>
 <%_ } _%>
             "}";
     }
+<%_ } _%> <%# lombok if end %>   
 }

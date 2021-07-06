@@ -96,8 +96,6 @@ module.exports = class extends EntityGenerator {
         const customPostPhaseSteps = {
             myCustomPostPreparingFieldsStep() {
                 // Stuff to do AFTER the JHipster steps
-                const entity = this.context;
-
                 this.context.fields.forEach(field => {
                   this._prepareGeneratedValueAnnotationPrimaryKey(field);
                 });
@@ -111,8 +109,20 @@ module.exports = class extends EntityGenerator {
     }    
 
     get preparing() {
-        // Here we are not overriding this phase and hence its being handled by JHipster
-        return this._preparing();
+        const customPostPhaseSteps = {
+            myCustomPostPreparingStep() {
+                // Stuff to do AFTER the JHipster steps
+                const entity = this.context;
+
+                _.defaults(entity, {
+                    lombok: entity.lombok == true,
+                });
+            }
+        };
+        return {
+            ...super._preparing(),
+            ...customPostPhaseSteps
+        };
     }
 
     get preparingRelationships() {
