@@ -174,7 +174,7 @@ import lombok.Data;
 @org.springframework.data.elasticsearch.annotations.Document(indexName = "<%= entityInstance.toLowerCase() %>")
 <%_ } _%>
 <%_ if (lombok) { _%>
-@Data()
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
