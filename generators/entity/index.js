@@ -114,8 +114,15 @@ module.exports = class extends EntityGenerator {
                 // Stuff to do AFTER the JHipster steps
                 const entity = this.context;
 
+                let hasSchemaValue = typeof entity.schema == 'string' && entity.schema.length > 0;
+                if (entity.schema != undefined && !hasSchemaValue) {
+                    throw new Error('The annotation @schema must have a value. Ex: @schema(Name)');
+                }
+
                 _.defaults(entity, {
                     lombok: entity.lombok == true,
+                    hasSchema: hasSchemaValue,
+                    entitySchemaName: entity.schema,
                 });
             }
         };

@@ -153,7 +153,11 @@ import lombok.Data;
 @Table("<%= entityTableName %>")
   <%_ } else { _%>
 @Entity
+    <%_ if (hasSchema) { _%>
+@Table(schema = "<%= entitySchemaName %>", name = "<%= entityTableName %>")
+    <%_ } else { _%>  
 @Table(name = "<%= entityTableName %>")
+    <%_ } _%>
     <%_ if (enableHibernateCache) { _%>
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     <%_ } _%>
