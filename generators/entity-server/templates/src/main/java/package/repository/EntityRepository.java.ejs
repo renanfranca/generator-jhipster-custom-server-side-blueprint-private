@@ -18,7 +18,7 @@
 -%>
 package <%= packageName %>.domain.repository;
 
-import <%= packageName %>.domain.<%= persistClass %>;
+import <%= packageName %>.domain.model.<%= persistClass %>;
 
 <%_ if (relationshipsContainEagerLoad) { _%>
 import org.springframework.data.domain.Page;
