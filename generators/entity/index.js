@@ -116,6 +116,7 @@ module.exports = class extends EntityGenerator {
 
                 this._preparingLombokAnnotationForEntityTemplates(entity);
                 this._preparingSchemaAnnotationForEntityTemplates(entity);
+                this._preparingNoCodCommentAnnotationForEntityTemplates(entity);
             }
         };
         return {
@@ -207,15 +208,15 @@ module.exports = class extends EntityGenerator {
      * Use the custom options defined at JDL as a Custom annotations to use lombok framework at domain entity instead of get and set
      * Ex:
      * @lombok entity ExampleClasse(ExampleTable) { exampleString String }
-     * @param {*} entity 
+     * @param {*} entityWithConfig 
      */
-    _preparingLombokAnnotationForEntityTemplates(entity) {
-        if (typeof entity.lombok == 'string' && entity.lombok.length > 0) {
+    _preparingLombokAnnotationForEntityTemplates(entityWithConfig) {
+        if (typeof entityWithConfig.lombok == 'string' && entityWithConfig.lombok.length > 0) {
             throw new Error('The annotation @lombok can not have a value. Ex: @lombok');
         }
 
-        _.defaults(entity, {
-            lombok: entity.lombok == true,
+        _.defaults(entityWithConfig, {
+            lombok: entityWithConfig.lombok == true,
         });
     }
 
@@ -224,17 +225,34 @@ module.exports = class extends EntityGenerator {
      * Ex:
      * @schema(Name) entity ExampleClasse(ExampleTable) { exampleString String }
      * 
-     * @param {*} entity 
+     * @param {*} entityWithConfig 
      */
-    _preparingSchemaAnnotationForEntityTemplates(entity) {
-        let hasSchemaValue = typeof entity.schema == 'string' && entity.schema.length > 0;
-        if (entity.schema != undefined && !hasSchemaValue) {
+    _preparingSchemaAnnotationForEntityTemplates(entityWithConfig) {
+        let hasSchemaValue = typeof entityWithConfig.schema == 'string' && entityWithConfig.schema.length > 0;
+        if (entityWithConfig.schema != undefined && !hasSchemaValue) {
             throw new Error('The annotation @schema must have a value. Ex: @schema(Name)');
         }
     
-        _.defaults(entity, {
+        _.defaults(entityWithConfig, {
             hasSchema: hasSchemaValue,
-            entitySchemaName: entity.schema,
+            entitySchemaName: entityWithConfig.schema,
+        });
+    }
+
+    /**
+     * Use the custom options defined at JDL as a Custom annotations to remove any code comment.
+     * Ex:
+     * @noCodeComment entity ExampleClasse(ExampleTable) { exampleString String }
+     * 
+     * @param {*} entityWithConfig 
+     */
+    _preparingNoCodCommentAnnotationForEntityTemplates(entityWithConfig) {
+        if (typeof entityWithConfig.noCodeComment == 'string' && entityWithConfig.noCodeComment.length > 0) {
+            throw new Error('The annotation @noCodeComment can not have a value. Ex: @noCodeComment');
+        }
+
+        _.defaults(entityWithConfig, {
+            noCodeComment: entityWithConfig.noCodeComment == true,
         });
     }
 };

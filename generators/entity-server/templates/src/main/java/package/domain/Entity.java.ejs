@@ -137,11 +137,16 @@ import static org.springframework.data.couchbase.core.mapping.id.GenerationStrat
 <%_ } _%>
 <%_ if (lombok) { _%>
 import lombok.Data;
+import lombok.Builder;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 <%_ } _%>
 <%_ if (typeof javadoc == 'undefined') { _%>
+  <%_ if (!noCodeComment) { _%>
 /**
  * A <%= persistClass %>.
  */
+  <%_ } _%>
 <%_ } else { _%>
 <%- formatAsClassJavadoc(javadoc) %>
   <%_ if (!hasDto) { _%>
@@ -321,8 +326,9 @@ public class <%= persistClass %> implements Serializable {
   if (otherEntityRelationshipName) {
     mappedBy = otherEntityRelationshipName.charAt(0).toLowerCase() + otherEntityRelationshipName.slice(1)
   }
-
-// An embedded entity should not reference entities that embeds it, unless the other entity is also embedded
+  if (!noCodeComment) {
+  // An embedded entity should not reference entities that embeds it, unless the other entity is also embedded
+  }
   if (embedded && !otherEntityIsEmbedded && ownerSide === false) {
     return;
   }
@@ -497,7 +503,10 @@ public class <%= persistClass %> implements Serializable {
 
   <%_ } _%>
 <%_ }); _%>
-<%# jhipster-needle-entity-add-field - JHipster will add fields here -%>
+
+<%_ if (!noCodeComment) { _%>
+// jhipster-needle-entity-add-field - JHipster will add fields here
+<%_ } _%>    
 <%_ if (!lombok) { _%>    
 <%_ if (!embedded) { _%>
     public <%= primaryKey.type %> get<%= primaryKey.nameCapitalized %>() {
@@ -585,8 +594,9 @@ for (const relationship of relationships) {
   const otherEntityRelationshipNameCapitalizedPlural = relationship.otherEntityRelationshipNameCapitalizedPlural;
   const otherEntityIsEmbedded = relationship.otherEntityIsEmbedded;
   const ownerSide = relationship.ownerSide || false;
-
+  if (!noCodeComment) {
 // An embedded entity should not reference entities that embeds it, unless the other entity is also embedded
+  }
   if (embedded && !otherEntityIsEmbedded && !ownerSide) {
     continue;
   }
@@ -727,7 +737,9 @@ _%>
     <%_ } _%>
   <%_ } _%>
 <%_ } _%>
-<%# jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here %>
+<%_ if (!noCodeComment) { _%>
+// jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
+<%_ } _%>
 
     @Override
     public boolean equals(Object o) {
@@ -746,11 +758,14 @@ _%>
 
     @Override
     public int hashCode() {
+<%_ if (!noCodeComment) { _%>
         // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
         return getClass().hashCode();
+<%_ } _%>
     }
-
+<%_ if (!noCodeComment) { _%>
     // prettier-ignore
+<%_ } _%>
     @Override
     public String toString() {
         return "<%= persistClass %>{" +

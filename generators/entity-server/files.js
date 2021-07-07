@@ -171,7 +171,7 @@ const serverFiles = {
       templates: [
         {
           file: 'package/service/dto/EntityDTO.java',
-          renameTo: generator => `${generator.packageFolder}/service/dto/${generator.asDto(generator.entityClass)}.java`,
+          renameTo: generator => `${generator.packageFolder}/api/dto/${generator.asDto(generator.entityClass)}.java`,
         },
         {
           file: 'package/service/mapper/BaseEntityMapper.java',

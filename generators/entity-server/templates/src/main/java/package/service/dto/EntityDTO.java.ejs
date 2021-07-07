@@ -16,7 +16,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -%>
-package <%= packageName %>.service.dto;
+package <%= packageName %>.api.dto;
 
 import java.util.Objects;
 <%_ if (typeof javadoc != 'undefined') { _%>
@@ -59,12 +59,26 @@ import javax.persistence.Lob;
 <%_ Object.keys(uniqueEnums).forEach(function(element) { _%>
 import <%= packageName %>.domain.enumeration.<%= element %>;
 <%_ }); _%>
+<%_ if (lombok) { _%>
+import lombok.Data;
+import lombok.Builder;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+<%_ } _%>
 
+<%_ if (!noCodeComment) { _%>
 /**
- * A DTO for the {@link <%= packageName %>.domain.<%= persistClass %>} entity.
- */
+* A DTO for the {@link <%= packageName %>.domain.<%= persistClass %>} entity.
+*/
+<%_ } _%>
 <%_ if (typeof javadoc !== 'undefined') { _%>
 @ApiModel(description = "<%- formatAsApiDescription(javadoc) %>")
+<%_ } _%>
+<%_ if (lombok) { _%>
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 <%_ } _%>
 public class <%= dtoClass %> implements Serializable {
 
@@ -168,7 +182,9 @@ _%>
 <%_ } _%>
     }
 
+<%_ if (!noCodeComment) { _%>
     // prettier-ignore
+<%_ } _%>
     @Override
     public String toString() {
         return "<%= dtoClass %>{" +
