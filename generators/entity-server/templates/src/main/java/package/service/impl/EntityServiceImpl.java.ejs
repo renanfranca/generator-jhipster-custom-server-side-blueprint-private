@@ -84,28 +84,38 @@ import java.util.stream.Collectors;
 <%_ if (fieldsContainNoOwnerOneToOne || (paginationNo && searchEngineElasticsearch)) { _%>
 import java.util.stream.StreamSupport;
 <%_ } _%>
+<%_ if (lombok) { _%>
+import lombok.AllArgsConstructor;
+<%_ } _%>
 <%_ if (searchEngineElasticsearch) { _%>
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 <%_ } _%>
 
+<%_ if (!noCodeComment) { _%>
 /**
  * Service Implementation for managing {@link <%= persistClass %>}.
  */
+<%_ } _%>
 @Service<% if (databaseTypeSql) { %>
 @Transactional<% } %>
+<%_ if (lombok) { _%>
+@AllArgsConstructor
+<%_ } _%>
 public class <%= serviceClassName %><% if (serviceImpl) { %> implements <%= entityClass %>Service<% } %> {
 
     private final Logger log = LoggerFactory.getLogger(<%= serviceClassName %>.class);
 <%- include('../../common/inject_template', {asEntity, asDto, viaService: false, constructorName: serviceClassName, queryService: false, isUsingMapsId: isUsingMapsId, mapsIdAssoc: mapsIdAssoc, isController: false}); -%>
 
 <%_ if (!serviceImpl) { _%>
+    <%_ if (!noCodeComment) { _%>
     /**
      * Save a <%= entityInstance %>.
      *
      * @param <%= instanceName %> the entity to save.
      * @return the persisted entity.
      */
+     <%_ } _%>
 <%_ } _%>
 <%_ if (serviceImpl) { _%>
     @Override
@@ -131,6 +141,7 @@ public class <%= serviceClassName %><% if (serviceImpl) { %> implements <%= enti
 <%- include('../../common/patch_template', {asEntity, asDto, isService: true, viaService: false}); -%>
     }
 
+<%_ if (!noCodeComment) { _%>
 <%_ if (!serviceImpl) { _%>
     /**
      * Get all the <%= entityInstancePlural %>.
@@ -140,6 +151,7 @@ public class <%= serviceClassName %><% if (serviceImpl) { %> implements <%= enti
   <%_ } _%>
      * @return the list of entities.
      */
+<%_ } _%>
 <%_ } _%>
 <%_ if (serviceImpl) { _%>
     @Override
@@ -160,7 +172,7 @@ public class <%= serviceClassName %><% if (serviceImpl) { %> implements <%= enti
     }
 
 <%_ if (relationshipsContainEagerLoad) { _%>
-
+<%_ if (!noCodeComment) { _%>
   <%_ if (!serviceImpl) { _%>
     /**
      * Get all the <%= entityInstancePlural %> with eager load of many-to-many relationships.
@@ -172,14 +184,17 @@ public class <%= serviceClassName %><% if (serviceImpl) { %> implements <%= enti
         return <%= entityInstance %>Repository.findAllWithEagerRelationships(pageable)<% if (!dtoMapstruct) { %>;<% } else { %>.map(<%= entityToDtoReference %>);<% } %>
     }
 <%_ } _%>
+<%_ } _%>
 <%- include('../../common/get_filtered_template', {asEntity, asDto}); -%>
 <%_ if (reactive) { _%>
   <%_ if (!serviceImpl) { _%>
+    <%_ if (!noCodeComment) { _%>
     /**
      * Returns the number of <%= entityInstancePlural %> available.
      * @return the number of entities in the database.
      *
      */
+    <%_ } _%>
   <%_ } _%>
     public Mono<Long> countAll() {
         return <%= entityInstance %>Repository.count();

@@ -202,7 +202,7 @@ public class <%= persistClass %> implements Serializable {
 <%_ if (!embedded) { _%>
     @Id
   <%_ if (primaryKey.fields[0].fieldNameAsDatabaseColumn) { _%>
-    @Column("<%- primaryKey.fields[0].fieldNameAsDatabaseColumn %>")
+    @Column(name = "<%- primaryKey.fields[0].fieldNameAsDatabaseColumn %>")
   <%_ } _%>    
   <%_ if (databaseTypeSql && !isUsingMapsId && !reactive && !primaryKey.composite) { _%>
     <%_ if (primaryKey.fields[0].jpaGeneratedValue === 'identity') { _%>
@@ -760,8 +760,8 @@ _%>
     public int hashCode() {
 <%_ if (!noCodeComment) { _%>
         // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
-        return getClass().hashCode();
 <%_ } _%>
+        return getClass().hashCode();
     }
 <%_ if (!noCodeComment) { _%>
     // prettier-ignore

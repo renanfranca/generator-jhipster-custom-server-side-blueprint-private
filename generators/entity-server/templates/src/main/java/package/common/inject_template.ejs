@@ -51,6 +51,8 @@ _%>
 
     <%= beans.map(bean => `private final ${bean.class} ${bean.instance};`).join('\n\n    ') %>
 
+    <% if (!lombok) { %>
     public <%= constructorName %>(<%= beans.map(bean => `${bean.class} ${bean.instance}`).join(', ') %>) {
-        <%= beans.map(bean => `this.${bean.instance} = ${bean.instance};`).join('\n        ') %>
+      <%= beans.map(bean => `this.${bean.instance} = ${bean.instance};`).join('\n        ') %>
     }
+    <% } %>
