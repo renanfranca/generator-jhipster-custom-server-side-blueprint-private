@@ -114,16 +114,8 @@ module.exports = class extends EntityGenerator {
                 // Stuff to do AFTER the JHipster steps
                 const entity = this.context;
 
-                let hasSchemaValue = typeof entity.schema == 'string' && entity.schema.length > 0;
-                if (entity.schema != undefined && !hasSchemaValue) {
-                    throw new Error('The annotation @schema must have a value. Ex: @schema(Name)');
-                }
-
-                _.defaults(entity, {
-                    lombok: entity.lombok == true,
-                    hasSchema: hasSchemaValue,
-                    entitySchemaName: entity.schema,
-                });
+                this._preparingLombokAnnotationForEntityTemplates(entity);
+                this._preparingSchemaAnnotationForEntityTemplates(entity);
             }
         };
         return {
@@ -209,5 +201,40 @@ module.exports = class extends EntityGenerator {
             field.columnName = field.fieldNameAsDatabaseColumn;
         }
         return field;
+    }
+
+    /**
+     * Use the custom options defined at JDL as a Custom annotations to use lombok framework at domain entity instead of get and set
+     * Ex:
+     * @lombok entity ExampleClasse(ExampleTable) { exampleString String }
+     * @param {*} entity 
+     */
+    _preparingLombokAnnotationForEntityTemplates(entity) {
+        if (typeof entity.lombok == 'string' && entity.lombok.length > 0) {
+            throw new Error('The annotation @lombok can not have a value. Ex: @lombok');
+        }
+
+        _.defaults(entity, {
+            lombok: entity.lombok == true,
+        });
+    }
+
+    /**
+     * Use the custom options defined at JDL as a Custom annotations to set the schema for an domain entity.
+     * Ex:
+     * @schema(Name) entity ExampleClasse(ExampleTable) { exampleString String }
+     * 
+     * @param {*} entity 
+     */
+    _preparingSchemaAnnotationForEntityTemplates(entity) {
+        let hasSchemaValue = typeof entity.schema == 'string' && entity.schema.length > 0;
+        if (entity.schema != undefined && !hasSchemaValue) {
+            throw new Error('The annotation @schema must have a value. Ex: @schema(Name)');
+        }
+    
+        _.defaults(entity, {
+            hasSchema: hasSchemaValue,
+            entitySchemaName: entity.schema,
+        });
     }
 };
