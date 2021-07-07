@@ -175,11 +175,11 @@ const serverFiles = {
         },
         {
           file: 'package/service/mapper/BaseEntityMapper.java',
-          renameTo: generator => `${generator.packageFolder}/service/mapper/EntityMapper.java`,
+          renameTo: generator => `${generator.packageFolder}/api/dto/mapper/EntityMapper.java`,
         },
         {
           file: 'package/service/mapper/EntityMapper.java',
-          renameTo: generator => `${generator.packageFolder}/service/mapper/${generator.entityClass}Mapper.java`,
+          renameTo: generator => `${generator.packageFolder}/api/dto/mapper/${generator.entityClass}Mapper.java`,
         },
       ],
     },
