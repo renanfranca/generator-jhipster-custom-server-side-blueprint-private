@@ -161,7 +161,7 @@ const serverFiles = {
       templates: [
         {
           file: 'package/service/impl/EntityServiceImpl.java',
-          renameTo: generator => `${generator.packageFolder}/service/${generator.entityClass}Service.java`,
+          renameTo: generator => `${generator.packageFolder}/api/service/${generator.entityClass}Service.java`,
         },
       ],
     },
