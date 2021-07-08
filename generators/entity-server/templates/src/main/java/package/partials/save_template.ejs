@@ -20,8 +20,12 @@
 const instanceName = restInstance;
 const mapper = entityInstance  + 'Mapper';
 const dtoToEntity = mapper + '.' + 'toEntity';
-const entityToDto = mapper + '.' + 'toDto';
-const entityToDtoReference = mapper + '::' + 'toDto';
+let entityToDto = mapper + '.' + 'toDto';
+let entityToDtoReference = mapper + '::' + 'toDto';
+if (esjtPattern) {
+entityToDto = mapper + '.' + 'toDTO';
+entityToDtoReference = mapper + '::' + 'toDTO';
+}
 const returnPrefix = (returnDirectly && !searchEngine) ? 'return' : instanceType + ' result =';
 let resultEntity;
 let mapsIdEntityInstance;

@@ -36,6 +36,15 @@ import java.util.List;
 
 public interface EntityMapper <D, E> {
 
+<%_ if (esjtPattern) { _%>
+    E toEntity(D dto);
+
+    D toDTO(E entity);
+
+    List <E> toEntity(List<D> dtoList);
+
+    List <D> toDTO(List<E> entityList);      
+<% } else { %>
     E toEntity(D dto);
 
     D toDto(E entity);
@@ -47,4 +56,5 @@ public interface EntityMapper <D, E> {
     @Named("partialUpdate")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void partialUpdate(@MappingTarget E entity, D dto);
+<%_ } _%>
 }

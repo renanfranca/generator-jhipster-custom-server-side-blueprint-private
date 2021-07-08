@@ -18,6 +18,9 @@
 -%>
 <% 
 let objectContext = JSON.parse(context);
+if (esjtPattern) {
+    entityToDto = 'toDTO';
+}
 %> 
 
 public <%= objectContext.optionalOrMono %><<%= instanceType %>> getById(<%= primaryKey.type %> id) {
@@ -41,7 +44,7 @@ public <% if (!objectContext.paginationNo) { %><%= pageOrFlux %><<%= instanceTyp
 
 @Transactional
 public <% if (objectContext.reactive) { %>Mono<<% } %><%= instanceType %><% if (objectContext.reactive) { %>><% } %> gavar(<%= instanceType %> <%= instanceName %>) {
-<%- include('/partials/save_template', saveMethod); -%>
+<%- include('../../partials/save_template', saveMethod); -%>
 }
 
 @Transactional

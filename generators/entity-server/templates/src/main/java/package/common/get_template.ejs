@@ -22,10 +22,18 @@
     const mapper = `${entityInstance}Mapper`;
     const entityToDtoReference = `${mapper}::toDto`;
     const returnPrefix = returnDirectly ? 'return' : `${instanceType} ${instanceName} =`;
+    let entityToDto = mapper + '.' + 'toDto';
+    if (esjtPattern) {
+    entityToDto = mapper + '.' + 'toDTO';
+    }
 %>
 <%_ if (!viaService) { _%>
+        <% if (dtoMapstruct) { %>
+        <%- returnPrefix %> <%= entityToDto %>(<%= entityInstance %>Repository.<% if (relationshipsContainEagerLoad) { %>findOneWithEagerRelationships(id)<% } else { %>findById(id)<% } %>);
+        <% } else { %>         
         <%- returnPrefix %> <%= entityInstance %>Repository.<% if (relationshipsContainEagerLoad) { %>findOneWithEagerRelationships(id)<% } else { %>findById(id)<% } %><% if (!dtoMapstruct) { %>;<% } else { %>
             .map(<%= entityToDtoReference %>);<% } %>
+        <%_ } _%>
 <%_ } else { _%>
         <%- returnPrefix %> <%= entityInstance %>Service.findOne(id);
 <%_ } _%>
