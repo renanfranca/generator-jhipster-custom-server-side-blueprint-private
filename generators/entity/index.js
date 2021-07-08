@@ -274,7 +274,6 @@ module.exports = class extends EntityGenerator {
 
         _.defaults(entityWithConfig, {
             esjtPattern: entityWithConfig.esjtPattern == true,
-            esjtPatternContext: JSON.stringify(entityWithConfig), //use it to passing as parameter to ejs includes and the include have access to as many function and variable as possible.
         });
     }
 };

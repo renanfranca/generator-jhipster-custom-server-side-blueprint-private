@@ -17,37 +17,36 @@
  limitations under the License.
 -%>
 <% 
-let objectContext = JSON.parse(context);
 if (esjtPattern) {
     entityToDto = 'toDTO';
 }
 %> 
 
-public <%= objectContext.optionalOrMono %><<%= instanceType %>> getById(<%= primaryKey.type %> id) {
+public <%=  optionalOrMono %><<%= instanceType %>> getById(<%= primaryKey.type %> id) {
     <%- include('../../common/get_template', getMethod); -%>
 }
 
-public <% if (!objectContext.paginationNo) { %><%= pageOrFlux %><<%= instanceType %><% } else { %><%= listOrFlux %><<%= instanceType %><% } %>> findAll(<% if (!objectContext.paginationNo) { %>Pageable pageable<% } %>) {
-<%_ if (objectContext.paginationNo) { _%>
-    <%_ if (objectContext.dtoMapstruct) { _%>
-        return <%= mapper %>.<%= entityToDto %>(<%= entityInstance %>Repository.<% if (objectContext.relationshipsContainEagerLoad) { %>findAllWithEagerRelationships<% } else { %>findAll<% } %>());
+public <% if (!paginationNo) { %><%= pageOrFlux %><<%= instanceType %><% } else { %><%= listOrFlux %><<%= instanceType %><% } %>> findAll(<% if (!paginationNo) { %>Pageable pageable<% } %>) {
+<%_ if (paginationNo) { _%>
+    <%_ if (dtoMapstruct) { _%>
+        return <%= mapper %>.<%= entityToDto %>(<%= entityInstance %>Repository.<% if (relationshipsContainEagerLoad) { %>findAllWithEagerRelationships<% } else { %>findAll<% } %>());
     <% } else { %>     
-    return <%= entityInstance %>Repository.<% if (objectContext.relationshipsContainEagerLoad) { %>findAllWithEagerRelationships<% } else { %>findAll<% } %>()<% if (objectContext.dtoMapstruct) { %><% if (!objectContext.reactive) { %>.stream()<% } %>
-        .map(<%= entityToDtoReference %>)<% if (!objectContext.reactive) { %>
+    return <%= entityInstance %>Repository.<% if (relationshipsContainEagerLoad) { %>findAllWithEagerRelationships<% } else { %>findAll<% } %>()<% if (dtoMapstruct) { %><% if (!reactive) { %>.stream()<% } %>
+        .map(<%= entityToDtoReference %>)<% if (!reactive) { %>
         .collect(Collectors.toList())<% } } %>;
     <%_ } _%>    
 <%_ } else { _%>
-    return <%= entityInstance %>Repository.findAll<% if (objectContext.reactive) { %>By<% } %>(objectContext.pageable)<% if (objectContext.dto !== 'mapstruct') { %>;<% } else { %>
+    return <%= entityInstance %>Repository.findAll<% if (reactive) { %>By<% } %>(pageable)<% if (dto !== 'mapstruct') { %>;<% } else { %>
         .map(<%= entityToDtoReference %>);<% } %>
 <%_ } _%>
 }
 
 @Transactional
-public <% if (objectContext.reactive) { %>Mono<<% } %><%= instanceType %><% if (objectContext.reactive) { %>><% } %> gavar(<%= instanceType %> <%= instanceName %>) {
+public <% if (reactive) { %>Mono<<% } %><%= instanceType %><% if (reactive) { %>><% } %> gavar(<%= instanceType %> <%= instanceName %>) {
 <%- include('../../partials/save_template', saveMethod); -%>
 }
 
 @Transactional
-public <%- objectContext.reactive ? 'Mono<Void>' : 'void' %> excluir(<%= primaryKey.type %> id) {
+public <%- reactive ? 'Mono<Void>' : 'void' %> excluir(<%= primaryKey.type %> id) {
 <%- include('../../common/delete_template', deleteMethod); -%>
 }
