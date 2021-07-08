@@ -1,0 +1,50 @@
+<%#
+ Copyright 2013-2021 the original author or authors from the JHipster project.
+
+ This file is part of the JHipster project, see https://www.jhipster.tech/
+ for more information.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-%>
+<% 
+let objectContext = JSON.parse(context);
+%> 
+
+public <%= objectContext.optionalOrMono %><<%= instanceType %>> getById(<%= primaryKey.type %> id) {
+    <%- include('../../common/get_template', getMethod); -%>
+}
+
+public <% if (!objectContext.paginationNo) { %><%= pageOrFlux %><<%= instanceType %><% } else { %><%= listOrFlux %><<%= instanceType %><% } %>> findAll(<% if (!objectContext.paginationNo) { %>Pageable pageable<% } %>) {
+<%_ if (objectContext.paginationNo) { _%>
+    <%_ if (objectContext.dtoMapstruct) { _%>
+        return <%= mapper %>.<%= entityToDto %>(<%= entityInstance %>Repository.<% if (objectContext.relationshipsContainEagerLoad) { %>findAllWithEagerRelationships<% } else { %>findAll<% } %>());
+    <% } else { %>     
+    return <%= entityInstance %>Repository.<% if (objectContext.relationshipsContainEagerLoad) { %>findAllWithEagerRelationships<% } else { %>findAll<% } %>()<% if (objectContext.dtoMapstruct) { %><% if (!objectContext.reactive) { %>.stream()<% } %>
+        .map(<%= entityToDtoReference %>)<% if (!objectContext.reactive) { %>
+        .collect(Collectors.toList())<% } } %>;
+    <%_ } _%>    
+<%_ } else { _%>
+    return <%= entityInstance %>Repository.findAll<% if (objectContext.reactive) { %>By<% } %>(objectContext.pageable)<% if (objectContext.dto !== 'mapstruct') { %>;<% } else { %>
+        .map(<%= entityToDtoReference %>);<% } %>
+<%_ } _%>
+}
+
+@Transactional
+public <% if (objectContext.reactive) { %>Mono<<% } %><%= instanceType %><% if (objectContext.reactive) { %>><% } %> gavar(<%= instanceType %> <%= instanceName %>) {
+<%- include('/partials/save_template', saveMethod); -%>
+}
+
+@Transactional
+public <%- objectContext.reactive ? 'Mono<Void>' : 'void' %> excluir(<%= primaryKey.type %> id) {
+<%- include('../../common/delete_template', deleteMethod); -%>
+}

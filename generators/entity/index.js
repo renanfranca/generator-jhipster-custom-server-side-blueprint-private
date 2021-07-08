@@ -117,6 +117,7 @@ module.exports = class extends EntityGenerator {
                 this._preparingLombokAnnotationForEntityTemplates(entity);
                 this._preparingSchemaAnnotationForEntityTemplates(entity);
                 this._preparingNoCodCommentAnnotationForEntityTemplates(entity);
+                this._preparingEsjtPatternAnnotationForEntityTemplates(entity, this);
             }
         };
         return {
@@ -253,6 +254,27 @@ module.exports = class extends EntityGenerator {
 
         _.defaults(entityWithConfig, {
             noCodeComment: entityWithConfig.noCodeComment == true,
+        });
+    }
+
+    /**
+     * Use the custom options defined at JDL as a Custom annotations to implement 
+     * customize Service/Resource/Tests using includes templates from templates/esjtpattern/ folder 
+     * and ignoring jhipster templates.
+     * Ex:
+     * @esjtPattern entity ExampleClasse(ExampleTable) { exampleString String }
+     * 
+     * @param {*} entityWithConfig 
+     * @param {*} generator 
+     */
+    _preparingEsjtPatternAnnotationForEntityTemplates(entityWithConfig, generator) {
+        if (typeof entityWithConfig.esjtPattern == 'string' && entityWithConfig.esjtPattern.length > 0) {
+            throw new Error('The annotation @esjtPattern can not have a value. Ex: @esjtPattern');
+        }
+
+        _.defaults(entityWithConfig, {
+            esjtPattern: entityWithConfig.esjtPattern == true,
+            esjtPatternContext: JSON.stringify(entityWithConfig), //use it to passing as parameter to ejs includes and the include have access to as many function and variable as possible.
         });
     }
 };
