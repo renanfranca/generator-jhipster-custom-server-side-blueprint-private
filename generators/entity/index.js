@@ -117,6 +117,8 @@ module.exports = class extends EntityGenerator {
                 this._preparingLombokAnnotationForEntityTemplates(entity);
                 this._preparingSchemaAnnotationForEntityTemplates(entity);
                 this._preparingNoCodCommentAnnotationForEntityTemplates(entity);
+                this._preparingApiVersionAnnotationForEntityTemplates(entity);
+                this._preparingApiUrlAnnotationForEntityTemplates(entity);
             }
         };
         return {
@@ -253,6 +255,40 @@ module.exports = class extends EntityGenerator {
 
         _.defaults(entityWithConfig, {
             noCodeComment: entityWithConfig.noCodeComment == true,
+        });
+    }
+    
+    /**
+     * Use the custom options defined at JDL as a Custom annotations to set the api version.
+     * Ex:
+     * @apiVersion(Name) entity ExampleClasse(ExampleTable) { exampleString String }
+     * @param {*} entityWithConfig 
+     */
+    _preparingApiVersionAnnotationForEntityTemplates(entityWithConfig) {
+        let hasApiVersionValue = typeof entityWithConfig.apiVersion == 'string' && entityWithConfig.apiVersion.length > 0;
+        if (entityWithConfig.apiVersion != undefined && !hasApiVersionValue) {
+            throw new Error('The annotation @apiVersion must have a value. Ex: @apiVersion(Name)');
+        }        
+        _.defaults(entityWithConfig, {
+            hasApiVersion: hasApiVersionValue,
+            apiVersion: entityWithConfig.apiVersion,
+        });
+    }
+
+    /**
+     * Use the custom options defined at JDL as a Custom annotations to set the api url.
+     * Ex:
+     * @apiUrl(Name) entity ExampleClasse(ExampleTable) { exampleString String }
+     * @param {*} entityWithConfig 
+     */
+    _preparingApiUrlAnnotationForEntityTemplates(entityWithConfig) {
+        let hasApiUrlValue = typeof entityWithConfig.apiUrl == 'string' && entityWithConfig.apiUrl.length > 0;
+        if (entityWithConfig.apiUrl != undefined && !hasApiUrlValue) {
+            throw new Error('The annotation @apiUrl must have a value. Ex: @apiUrl(Name)');
+        }        
+        _.defaults(entityWithConfig, {
+            hasApiUrl: hasApiUrlValue,
+            apiUrl: entityWithConfig.apiUrl,
         });
     }
 };
