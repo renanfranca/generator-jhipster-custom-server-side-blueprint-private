@@ -68,9 +68,11 @@ import java.util.Optional;
 import java.util.UUID;
 <%_ } _%>
 
+<%_ if (!noCodeComment) { _%>
 /**
  * Spring Data <%= officialDatabaseType %> repository for the <%= persistClass %> entity.
  */
+<%_ } _%>
 <%_ if (!relationshipsContainEagerLoad) { _%>
 @SuppressWarnings("unused")
 <%_ } _%>

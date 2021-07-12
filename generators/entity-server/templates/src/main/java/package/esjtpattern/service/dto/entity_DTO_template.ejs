@@ -16,13 +16,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -%>
-package <%= packageName %>.api.dto;
 
-<%_ if (esjtPattern) { _%>
-<%- include('../../esjtpattern/service/dto/entity_DTO_template')  -%> 
-<%_ } else { _%> <%# esjtPattern start else %>
-
-import java.util.Objects;
 <%_ if (typeof javadoc != 'undefined') { _%>
 import io.swagger.annotations.ApiModel;
 <%_ } if (importApiModelProperty) { _%>
@@ -43,7 +37,6 @@ import java.time.Duration;
 <%_ if (validation) { _%>
 import javax.validation.constraints.*;
 <%_ } _%>
-import java.io.Serializable;
 <%_ if (fieldsContainBigDecimal) { _%>
 import java.math.BigDecimal;
 <%_ } _%>
@@ -84,7 +77,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 <%_ } _%>
-public class <%= dtoClass %> implements Serializable {
+public class <%= dtoClass %> {
 
 <%_ for (reference of dtoReferences) {
   if (typeof reference.doc !== 'undefined') {
@@ -107,9 +100,9 @@ _%>
   <%_ if (field && field.blobContentTypeText) { _%>
     private String <%= reference.name %>;
   <%_ } else if (reference.collection && reference.relationship) { _%>
-    private Set<<%= asDto(reference.relationship.otherEntity.entityNameCapitalized) %>> <%= reference.name %> = new HashSet<>();
+    private Set<<%= this.asDto(reference.relationship.otherEntity.entityNameCapitalized) %>> <%= reference.name %> = new HashSet<>();
   <%_ } else if (reference.relationship) { _%>
-    private <%= asDto(reference.relationship.otherEntity.entityNameCapitalized) %> <%= reference.name %>;
+    private <%= this.asDto(reference.relationship.otherEntity.entityNameCapitalized) %> <%= reference.name %>;
   <%_ } else { _%>
     private <%= reference.type %> <%= reference.name %>;
   <%_ } _%>
@@ -125,9 +118,9 @@ _%>
   <%_ if (reference.field && reference.field.blobContentTypeText) { _%>
     public <%= buildJavaGetter(reference, 'String') %> {
   <%_ } else if (reference.collection && reference.relationship) { _%>
-    public <%- buildJavaGetter(reference, `Set<${ asDto(reference.relationship.otherEntity.entityNameCapitalized) }>` ) %> {
+    public <%- buildJavaGetter(reference, `Set<${ this.asDto(reference.relationship.otherEntity.entityNameCapitalized) }>` ) %> {
   <%_ } else if (reference.relationship) { _%>
-    public <%= buildJavaGetter(reference, asDto(reference.relationship.otherEntity.entityNameCapitalized)) %> {
+    public <%= buildJavaGetter(reference, this.asDto(reference.relationship.otherEntity.entityNameCapitalized)) %> {
   <%_ } else { _%>
     public <%= buildJavaGetter(reference) %> {
   <%_ } _%>
@@ -137,9 +130,9 @@ _%>
   <%_ if (reference.field && reference.field.blobContentTypeText) { _%>
     public void <%= buildJavaSetter(reference, `String ${reference.name}`) %> {
   <%_ } else if (reference.collection && reference.relationship) { _%>
-    public void <%- buildJavaSetter(reference, `Set<${ asDto(reference.relationship.otherEntity.entityNameCapitalized) }> ${reference.name}`) %> {
+    public void <%- buildJavaSetter(reference, `Set<${ this.asDto(reference.relationship.otherEntity.entityNameCapitalized) }> ${reference.name}`) %> {
   <%_ } else if (reference.relationship) { _%>
-    public void <%= buildJavaSetter(reference, `${ asDto(reference.relationship.otherEntity.entityNameCapitalized) } ${reference.name}`) %> {
+    public void <%= buildJavaSetter(reference, `${ this.asDto(reference.relationship.otherEntity.entityNameCapitalized) } ${reference.name}`) %> {
   <%_ } else { _%>
     public void <%= buildJavaSetter(reference) %> {
   <%_ } _%>
@@ -201,4 +194,3 @@ _%>
     }
 <%_ } _%> <%# lombok end if %>
 }
-<%_ } _%> <%# esjtPattern end else %>

@@ -16,17 +16,6 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -%>
-package <%= packageName %>.api.dto.mapper;
-
-<%_ if (esjtPattern) { _%>
-<%- include('../../esjtpattern/service/mapper/base_entity_mapper_template')  -%> 
-<%_ } else { _%> <%# esjtPattern start else %>
-
-import org.mapstruct.BeanMapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.Named;
-import org.mapstruct.NullValuePropertyMappingStrategy;
-
 import java.util.List;
 
 <%_ if (!noCodeComment) { _%>
@@ -47,10 +36,4 @@ public interface EntityMapper <D, E> {
     List <E> toEntity(List<D> dtoList);
 
     List <D> toDto(List<E> entityList);
-
-    @Named("partialUpdate")
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void partialUpdate(@MappingTarget E entity, D dto);
 }
-
-<%_ } _%> <%# esjtPattern end else %>

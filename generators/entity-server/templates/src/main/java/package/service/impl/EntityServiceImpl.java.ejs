@@ -68,8 +68,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 <%_ } _%>
 
+<%_ if (!esjtPattern) { _%>
 <%_ if (dtoMapstruct && (paginationNo || fieldsContainNoOwnerOneToOne)) { _%>
 import java.util.LinkedList;
+<%_ } _%>
 <%_ } _%>
 <%_ if (paginationNo || fieldsContainNoOwnerOneToOne) { _%>
 import java.util.List;
@@ -88,6 +90,9 @@ import java.util.stream.StreamSupport;
 <%_ } _%>
 <%_ if (lombok) { _%>
 import lombok.AllArgsConstructor;
+<%_ } _%>
+<%_ if (esjtPattern) { _%>
+import <%= packageName %>.api.exception.NotFoundException;
 <%_ } _%>
 <%_ if (searchEngineElasticsearch) { _%>
 

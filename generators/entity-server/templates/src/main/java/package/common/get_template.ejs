@@ -22,15 +22,18 @@
     const mapper = `${entityInstance}Mapper`;
     const entityToDtoReference = `${mapper}::toDto`;
     const returnPrefix = returnDirectly ? 'return' : `${instanceType} ${instanceName} =`;
-    let entityToDto = mapper + '.' + 'toDto';
-    if (esjtPattern) {
-    entityToDto = mapper + '.' + 'toDTO';
-    }
+    const entityToDto = mapper + '.' + 'toDto';
 %>
 <%_ if (!viaService) { _%>
-        <% if (dtoMapstruct) { %>
-        <%- returnPrefix %> <%= entityToDto %>(<%= entityInstance %>Repository.<% if (relationshipsContainEagerLoad) { %>findOneWithEagerRelationships(id)<% } else { %>findById(id)<% } %>);
-        <% } else { %>         
+        <%_ if (esjtPattern) { _%>
+            Optional<<%= persistClass %>> <%= persistInstance %>Optional = <%= entityInstance %>Repository.<% if (relationshipsContainEagerLoad) { %>findOneWithEagerRelationships(id)<% } else { %>findById(id)<% } %>;
+            if (!<%= persistInstance %>Optional.isPresent()) {
+                throw new NotFoundException(
+					"Não foi possível localizar os dados a partir do identificador informado.");
+            }
+
+            return <%= entityToDto %>(<%= persistInstance %>Optional.get());
+        <%_ } else { _%>         
         <%- returnPrefix %> <%= entityInstance %>Repository.<% if (relationshipsContainEagerLoad) { %>findOneWithEagerRelationships(id)<% } else { %>findById(id)<% } %><% if (!dtoMapstruct) { %>;<% } else { %>
             .map(<%= entityToDtoReference %>);<% } %>
         <%_ } _%>

@@ -16,19 +16,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -%>
-package <%= packageName %>.api.dto.mapper;
-
-<%_ if (esjtPattern) { _%>
-<%- include('../../esjtpattern/service/mapper/entity_mapper_template')  -%> 
-<%_ } else { _%> <%# esjtPattern start else %>
-
 <%_
 let existingMappings = [];
 let uuidMapMethod = dtoReferences.some(reference => reference.valueReference && reference.valueReference.field && reference.valueReference.field.fieldTypeUUID);
 let byteMapMethod = dtoReferences.some(reference => reference.valueReference && reference.valueReference.field && reference.valueReference.field.fieldTypeBytes);
 for (reference of dtoReferences) {
   // if the entity is mapped twice, we should implement the mapping once
-  if (reference.relationship && !reference.relationship.otherEntity.embedded && !existingMappings.includes(reference.name) && asEntity(reference.relationship.otherEntityNameCapitalized) !== persistClass) {
+  if (reference.relationship && !reference.relationship.otherEntity.embedded && !existingMappings.includes(reference.name) && this.asEntity(reference.relationship.otherEntityNameCapitalized) !== persistClass) {
     existingMappings.push(reference.relationship.otherEntity.entityNameCapitalized);
   }
  }
@@ -165,4 +159,3 @@ if (!embedded && otherIdReferences.length > 0) {
   <%_ } _%>
 <%_ } _%>
 }
-<%_ } _%> <%# esjtPattern end else %>

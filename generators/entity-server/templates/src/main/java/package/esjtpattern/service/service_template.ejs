@@ -15,26 +15,16 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
--%>
-<% 
-if (esjtPattern) {
-    entityToDto = 'toDTO';
-}
-%> 
-
-public <%=  optionalOrMono %><<%= instanceType %>> getById(<%= primaryKey.type %> id) {
+-%> 
+public <%= instanceType %> getById(<%= primaryKey.type %> id) {
     <%- include('../../common/get_template', getMethod); -%>
 }
 
 public <% if (!paginationNo) { %><%= pageOrFlux %><<%= instanceType %><% } else { %><%= listOrFlux %><<%= instanceType %><% } %>> findAll(<% if (!paginationNo) { %>Pageable pageable<% } %>) {
-<%_ if (paginationNo) { _%>
-    <%_ if (dtoMapstruct) { _%>
-        return <%= mapper %>.<%= entityToDto %>(<%= entityInstance %>Repository.<% if (relationshipsContainEagerLoad) { %>findAllWithEagerRelationships<% } else { %>findAll<% } %>());
-    <% } else { %>     
+<%_ if (paginationNo) { _%> 
     return <%= entityInstance %>Repository.<% if (relationshipsContainEagerLoad) { %>findAllWithEagerRelationships<% } else { %>findAll<% } %>()<% if (dtoMapstruct) { %><% if (!reactive) { %>.stream()<% } %>
         .map(<%= entityToDtoReference %>)<% if (!reactive) { %>
         .collect(Collectors.toList())<% } } %>;
-    <%_ } _%>    
 <%_ } else { _%>
     return <%= entityInstance %>Repository.findAll<% if (reactive) { %>By<% } %>(pageable)<% if (dto !== 'mapstruct') { %>;<% } else { %>
         .map(<%= entityToDtoReference %>);<% } %>
