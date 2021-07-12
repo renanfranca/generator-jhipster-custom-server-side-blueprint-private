@@ -32,7 +32,7 @@ public <% if (!paginationNo) { %><%= pageOrFlux %><<%= instanceType %><% } else 
 }
 
 @Transactional
-public <% if (reactive) { %>Mono<<% } %><%= instanceType %><% if (reactive) { %>><% } %> gavar(<%= instanceType %> <%= instanceName %>) {
+public <% if (reactive) { %>Mono<<% } %><%= instanceType %><% if (reactive) { %>><% } %> gravar(<%= instanceType %> <%= instanceName %>) {
 <%- include('../../partials/save_template', saveMethod); -%>
 }
 

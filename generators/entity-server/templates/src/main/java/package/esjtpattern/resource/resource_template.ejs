@@ -1,0 +1,96 @@
+<%#
+ Copyright 2013-2021 the original author or authors from the JHipster project.
+
+ This file is part of the JHipster project, see https://www.jhipster.tech/
+ for more information.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-%>
+
+import <%= packageName %>.api.service.<%= entityClass %>Service;
+import <%= packageName %>.api.dto.<%= dtoClass %>;
+
+import java.util.List;
+
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import br.jus.tjse.core.rest.response.Response;
+import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
+
+<%_
+const instanceType = restClass;
+const instanceName = restInstance;
+
+if (hasApiVersion && hasApiUrl) {
+    entityApiUrl = "/"+apiVersion+"/"+apiUrl;
+} else if (hasApiVersion) {
+    entityApiUrl = "/"+apiVersion+"/"+entityApiUrl;
+} else if (hasApiUrl){
+    entityApiUrl = apiUrl;
+}
+_%>
+
+<%_ if (!noCodeComment) { _%>
+/**
+* REST controller for managing {@link <%= packageName %>.domain.<%= persistClass %>}.
+*/
+<%_ } _%>
+@RestController
+@RequestMapping("<%= entityApiUrl %>")
+@RequiredArgsConstructor
+@SuppressWarnings("rawtypes")
+public class <%= entityClass %>Resource {
+
+private final <%= entityClass %>Service <%= entityInstance %>Service;
+
+@GetMapping
+@ApiOperation(value = "Recupera a lista de todos registros da entidade <%= entityClass %>.")
+public Response<List<<%= instanceType %>>> getAll(<% if (fieldsContainNoOwnerOneToOne) { %>@RequestParam(required = false) String filter<% } %><% if (relationshipsContainEagerLoad && fieldsContainNoOwnerOneToOne) { %>,<% } %><% if (relationshipsContainEagerLoad) { %>@RequestParam(required = false, defaultValue = "false") boolean eagerload<% } %>) {
+return Response.ok(<%= entityInstance %>Service.findAll());
+}
+
+@GetMapping("/{id}")
+@ApiOperation(value = "Recupera o registro da entidade <%= entityClass %> pelo id.")
+public Response<<%= instanceType %>> get<%= entityClass %>(@PathVariable <%= primaryKey.type %> id) {
+    return Response.ok(<%= entityInstance %>Service.getById(id));
+}
+
+@PostMapping
+@ApiOperation(value = "Inserção da entidade <%= entityClass %>.")
+public Response<<%= instanceType %>> inserir(@RequestBody @Validated <%= instanceType %> <%= instanceName %>) {
+    return Response.ok(<%= entityInstance %>Service.gravar(<%= instanceName %>));
+}
+
+@PutMapping
+@ApiOperation(value = "Atualização da entidade <%= entityClass %>.")
+public Response<<%= instanceType %>> atualizar(@RequestBody @Validated <%= instanceType %> <%= instanceName %>) {
+    return Response.ok(<%= entityInstance %>Service.gravar(<%= instanceName %>));
+}
+
+@DeleteMapping
+@ApiOperation(value = "Exclusão da entidade <%= entityClass %>.")
+public Response excluir(@PathVariable <%= primaryKey.type %> id) {
+    <%= entityInstance %>Service.excluir(id);
+    return Response.ok();
+}
+
+}

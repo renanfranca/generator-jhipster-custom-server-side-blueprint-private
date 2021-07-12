@@ -79,7 +79,7 @@ const serverFiles = {
       templates: [
         {
           file: 'package/web/rest/EntityResource.java',
-          renameTo: generator => `${generator.packageFolder}/web/rest/${generator.entityClass}Resource.java`,
+          renameTo: generator => `${generator.packageFolder}/api/resources/${generator.entityClass}Resource.java`,
         },
       ],
     },
