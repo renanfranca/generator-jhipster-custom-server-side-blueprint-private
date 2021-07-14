@@ -70,7 +70,7 @@ return Response.ok(<%= entityInstance %>Service.findAll());
 
 @GetMapping("/{id}")
 @ApiOperation(value = "Recupera o registro da entidade <%= entityClass %> pelo id.")
-public Response<<%= instanceType %>> get<%= entityClass %>(@PathVariable <%= primaryKey.type %> id) {
+public Response<<%= instanceType %>> getById(@PathVariable <%= primaryKey.type %> id) {
     return Response.ok(<%= entityInstance %>Service.getById(id));
 }
 

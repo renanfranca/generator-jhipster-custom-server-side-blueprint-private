@@ -16,8 +16,11 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -%>
-package <%= packageName %>.web.rest;
+package <%= packageName %>.api.resources;
 
+<%_ if (esjtPattern) { _%>
+<%- include('../../esjtpattern/resource/resource_it_template');  -%> 
+<%_ } else { _%> <%# esjtPattern start else %>
 <%_
 
 let mapsIdEntity;
@@ -1775,3 +1778,4 @@ _%>
     }
 <%_ } _%>
 }
+<%_ } _%> <%# esjtPattern end else %>

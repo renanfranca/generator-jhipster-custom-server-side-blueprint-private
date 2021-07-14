@@ -199,7 +199,7 @@ const serverFiles = {
               SERVER_TEST_SRC_DIR,
             },
           },
-          renameTo: generator => `${generator.packageFolder}/web/rest/${generator.entityClass}ResourceIT.java`,
+          renameTo: generator => `${generator.packageFolder}/api/resources/${generator.entityClass}ResourceIT.java`,
         },
       ],
     },
