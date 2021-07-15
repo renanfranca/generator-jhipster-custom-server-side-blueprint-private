@@ -86,7 +86,7 @@ public Response<<%= instanceType %>> atualizar(@RequestBody @Validated <%= insta
     return Response.ok(<%= entityInstance %>Service.gravar(<%= instanceName %>));
 }
 
-@DeleteMapping
+@DeleteMapping("/{id}")
 @ApiOperation(value = "Exclusão da entidade <%= entityClass %>.")
 public Response excluir(@PathVariable <%= primaryKey.type %> id) {
     <%= entityInstance %>Service.excluir(id);

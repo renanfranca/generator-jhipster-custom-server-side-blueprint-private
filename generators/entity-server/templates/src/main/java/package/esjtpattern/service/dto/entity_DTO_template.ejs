@@ -69,7 +69,7 @@ import lombok.NoArgsConstructor;
 */
 <%_ } _%>
 <%_ if (typeof javadoc !== 'undefined') { _%>
-@ApiModel(description = "<%- formatAsApiDescription(javadoc) %>")
+@ApiModel(description = "<%- this.formatAsApiDescription(javadoc) %>")
 <%_ } _%>
 <%_ if (lombok) { _%>
 @Data

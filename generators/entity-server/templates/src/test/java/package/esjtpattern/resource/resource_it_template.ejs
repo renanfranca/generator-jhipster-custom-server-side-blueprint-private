@@ -7,10 +7,14 @@ import <%= packageName %>.api.util.ResultMatcherHelper;
 import <%= packageName %>.domain.model.<%= entityClass %>;
 
 <%# Spring boot and java imports %> 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -18,6 +22,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.json.JacksonTester;
@@ -49,6 +55,8 @@ _%>
 @ExtendWith(value = { SpringExtension.class })
 @DisplayNameGeneration(ReplaceCamelCase.class)
 @SpringBootTest
+@AutoConfigureJsonTesters
+@AutoConfigureRestDocs
 @AutoConfigureMockMvc(addFilters = false)
 class <%= entityClass %>ResourceIT {
     <%_
@@ -241,6 +249,9 @@ class <%= entityClass %>ResourceIT {
 
   @Autowired
   private JacksonTester<<%= dtoClass %>> json<%= dtoClass %>;
+  
+  @Autowired
+  private JacksonTester<List<<%= dtoClass %>>> json<%= dtoClass %>List;
 
 	@BeforeEach
 	public void setup() {
@@ -252,65 +263,138 @@ class <%= entityClass %>ResourceIT {
     <%= entityInstance %>Repository.deleteAll();
 	}     
 
-@Test
-void deveriaInserir<%= entityClass %>() throws Exception {
+  @Test
+  void deveriaInserir<%= entityClass %>() throws Exception {
+      //given
+      String json = json<%= dtoClass %>.write(createDto()).getJson();
+
+      //when
+      mockMvc
+              .perform(MockMvcRequestBuilders.post(ENTITY_API_URL).header("Authorization", tokenUsuarioIntranet)
+                      .contentType(MediaType.APPLICATION_JSON).content(json))
+      //then
+              .andExpect(MockMvcResultMatchers.jsonPath("$.status", is(HttpStatus.OK.name())))
+              .andExpect(MockMvcResultMatchers.jsonPath("$.result[?(@.id)]").exists())
+    <% for (field of fields.filter(field => !field.id && !field.transient)) { %>
+      <%_ if (field.fieldTypeBinary && !field.blobContentTypeText) { _%>
+                <%= !reactive ? '.andExpect(' : '.' %>jsonPath("$.[*].<%= field.fieldName %>ContentType").value(hasItem(<%= 'DEFAULT_' + field.fieldNameUnderscored.toUpperCase() %>_CONTENT_TYPE))<%= !reactive ? ')' : '' %>
+      <%_ } _%>
+                <%= !reactive ? '.andExpect(' : '.' %>jsonPath("$.[*].<%= field.fieldName %>").value(hasItem(<%
+      if (field.fieldTypeBinary && !field.blobContentTypeText) { %>Base64Utils.encodeToString(<% } else
+      if (field.fieldTypeZonedDateTime) { %>sameInstant(<% } else
+      if (field.fieldTypeBigDecimal) { %>sameNumber(<% } %><%= 'DEFAULT_' + field.fieldNameUnderscored.toUpperCase() %><%
+      if (field.fieldTypeBinary && !field.blobContentTypeText) { %><%
+        if (databaseTypeCassandra) { %>.array()<% } %>)<% } else
+      if (field.fieldTypeInteger) { %><% } else
+      if (field.fieldTypeLong) { %>.intValue()<% } else
+      if (field.fieldTypeFloat || field.fieldTypeDouble) { %>.doubleValue()<% } else
+      if (field.fieldTypeBigDecimal) { %>)<% } else
+      if (field.fieldTypeBoolean) { %>.booleanValue()<% } else
+      if (field.fieldTypeZonedDateTime) { %>)<% } else
+      if (!field.fieldTypeString) { %>.toString()<% } %>))<%= !reactive ? ')' : '' %>
+    <%_ } _%>            
+              .andDo(WireMockRestDocs.verify()
+                      .wiremock(WireMock.post(WireMock.urlMatching("\\/[a-z\\d]{2}\\/<%= apiUrl %>"))
+                              .withHeader("Authorization", WireMock.matching("Bearer .*"))
+                              .withHeader("Content-Type", WireMock.containing("application/json"))
+                              .withRequestBody(WireMock.matchingJsonPath("$[?(@.id == null)]"))
+                              )
+                      )
+              .andDo(MockMvcRestDocumentation.document(documentPath, SpringCloudContractRestDocs.dslContract()));
+  }
+
+  @Test
+  void deveriaRetornar<%= entityClass %>PeloId() throws Exception {
     //given
-    String json = json<%= dtoClass %>.write(createDto()).getJson();
+    <%= persistClass %> <%= persistInstance %> = createEntity();
+    <%= entityInstance %>Repository.<%= saveMethod %>(<%= persistInstance %>);
+    String expectedJson = json<%= dtoClass %>.write(createDtoWithId(<%= persistInstance %>.get<%= primaryKey.nameCapitalized %>())).getJson();
+
+    //when    
+    mockMvc.perform(get(ENTITY_API_URL_ID, <%= persistInstance %>.get<%= primaryKey.nameCapitalized %>()).header("Authorization", tokenUsuarioIntranet))
+    //then
+        .andExpect(MockMvcResultMatchers.jsonPath("$.status", is(HttpStatus.OK.name())))
+        .andExpect(ResultMatcherHelper.equalToJsonIgnoringArrayOrderAndIgnoringExtraElements("$.result", expectedJson))
+        .andDo(WireMockRestDocs.verify()
+            .wiremock(WireMock.get(WireMock.urlMatching("\\/[a-z\\d]{2}\\/<%= apiUrl %>\\/\\d+"))
+                .withHeader("Authorization", WireMock.matching("Bearer .*"))
+                )
+            )
+        .andDo(MockMvcRestDocumentation.document(documentPath, SpringCloudContractRestDocs.dslContract()));
+  }
+
+  @Test
+	void deveriaRetornarTodasEntidades<%= entityClass %>SemConsiderarOrdem() throws Exception {
+    //given
+    <%= persistClass %> <%= persistInstance %> = createEntity();
+    <%= entityInstance %>Repository.<%= saveMethod %>(<%= persistInstance %>);
+    <%= dtoClass %> <%= dtoInstance %>First = createDtoWithId(<%= persistInstance %>.get<%= primaryKey.nameCapitalized %>());
+    <%= persistInstance %> = createEntity();
+    <%= entityInstance %>Repository.<%= saveMethod %>(<%= persistInstance %>);
+    <%= dtoClass %> <%= dtoInstance %>Second = createDtoWithId(<%= persistInstance %>.get<%= primaryKey.nameCapitalized %>());
+    String expectedJson = json<%= dtoClass %>List.write(Arrays.asList(<%= dtoInstance %>First, <%= dtoInstance %>Second)).getJson();        
+
+		//when
+		mockMvc
+				.perform(MockMvcRequestBuilders.get(ENTITY_API_URL).header("Authorization", tokenUsuarioIntranet))
+    //then
+				.andExpect(MockMvcResultMatchers.jsonPath("$.status", is(HttpStatus.OK.name())))
+				.andExpect(ResultMatcherHelper.equalToJsonIgnoringArrayOrderAndIgnoringExtraElements("$.result", expectedJson))				
+				.andDo(WireMockRestDocs.verify()
+						.wiremock(WireMock.get(WireMock.urlMatching("\\/[a-z\\d]{2}\\/<%= apiUrl %>"))
+								.withHeader("Authorization", WireMock.matching("Bearer .*"))
+								)
+						)
+				.andDo(MockMvcRestDocumentation.document(documentPath, SpringCloudContractRestDocs.dslContract()));
+	}
+
+	@Test
+	void deveriaAtualizar<%= entityClass %>() throws Exception {
+    //given
+    <%= persistClass %> <%= persistInstance %> = createEntity();
+    <%= entityInstance %>Repository.<%= saveMethod %>(<%= persistInstance %>);
+    String json = json<%= dtoClass %>.write(createUpdatedDtoWithId(<%= persistInstance %>.get<%= primaryKey.nameCapitalized %>())).getJson();
+    String expectedJson = json;
 
     //when
-    mockMvc
-            .perform(MockMvcRequestBuilders.post(ENTITY_API_URL).header("Authorization", tokenUsuarioIntranet)
-                    .contentType(MediaType.APPLICATION_JSON).content(json))
-    //then
-            .andExpect(MockMvcResultMatchers.jsonPath("$.status", is(HttpStatus.OK.name())))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.result[?(@.id)]").exists())
-  <% for (field of fields.filter(field => !field.id && !field.transient)) { %>
-    <%_ if (field.fieldTypeBinary && !field.blobContentTypeText) { _%>
-              <%= !reactive ? '.andExpect(' : '.' %>jsonPath("$.[*].<%= field.fieldName %>ContentType").value(hasItem(<%= 'DEFAULT_' + field.fieldNameUnderscored.toUpperCase() %>_CONTENT_TYPE))<%= !reactive ? ')' : '' %>
-    <%_ } _%>
-              <%= !reactive ? '.andExpect(' : '.' %>jsonPath("$.[*].<%= field.fieldName %>").value(hasItem(<%
-    if (field.fieldTypeBinary && !field.blobContentTypeText) { %>Base64Utils.encodeToString(<% } else
-    if (field.fieldTypeZonedDateTime) { %>sameInstant(<% } else
-    if (field.fieldTypeBigDecimal) { %>sameNumber(<% } %><%= 'DEFAULT_' + field.fieldNameUnderscored.toUpperCase() %><%
-    if (field.fieldTypeBinary && !field.blobContentTypeText) { %><%
-      if (databaseTypeCassandra) { %>.array()<% } %>)<% } else
-    if (field.fieldTypeInteger) { %><% } else
-    if (field.fieldTypeLong) { %>.intValue()<% } else
-    if (field.fieldTypeFloat || field.fieldTypeDouble) { %>.doubleValue()<% } else
-    if (field.fieldTypeBigDecimal) { %>)<% } else
-    if (field.fieldTypeBoolean) { %>.booleanValue()<% } else
-    if (field.fieldTypeZonedDateTime) { %>)<% } else
-    if (!field.fieldTypeString) { %>.toString()<% } %>))<%= !reactive ? ')' : '' %>
-  <%_ } _%>            
-            .andDo(WireMockRestDocs.verify()
-                    .wiremock(WireMock.post(WireMock.urlMatching("\\/[a-z\\d]{2}\\/<%= apiUrl %>"))
-                            .withHeader("Authorization", WireMock.matching("Bearer .*"))
-                            .withHeader("Content-Type", WireMock.containing("application/json"))
-                            .withRequestBody(WireMock.matchingJsonPath("$[?(@.id == null)]"))
-                            )
-                    )
-            .andDo(MockMvcRestDocumentation.document(documentPath, SpringCloudContractRestDocs.dslContract()));
-}
+		mockMvc
+				.perform(MockMvcRequestBuilders.put(ENTITY_API_URL).header("Authorization", tokenUsuarioIntranet)
+						.contentType(MediaType.APPLICATION_JSON).content(json))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.status", is(HttpStatus.OK.name())))
+				.andExpect(ResultMatcherHelper.equalToJsonIgnoringArrayOrderAndIgnoringExtraElements("$.result", expectedJson))
+				.andDo(WireMockRestDocs.verify()
+						.wiremock(WireMock.put(WireMock.urlMatching("\\/[a-z\\d]{2}\\/<%= apiUrl %>"))
+								.withHeader("Authorization", WireMock.matching("Bearer .*"))
+								.withHeader("Content-Type", WireMock.containing("application/json"))
+								.withRequestBody(WireMock.matchingJsonPath("$.id"))
+								)
+						)
+				.andDo(MockMvcRestDocumentation.document(documentPath, SpringCloudContractRestDocs.dslContract()));
+	}
 
-@Test
-void deveriaRetornar<%= entityClass %>PeloId() throws Exception {
-  //given
-  <%= persistClass %> <%= persistInstance %> = createEntity();
-  <%= entityInstance %>Repository.<%= saveMethod %>(<%= persistInstance %>);
-  String expectedJson = json<%= dtoClass %>.write(createDtoWithId(<%= persistInstance %>.get<%= primaryKey.nameCapitalized %>())).getJson();
+	@Test
+	void deveriaRemover<%= entityClass %>() throws Exception {
+    //given
+    <%= persistClass %> <%= persistInstance %> = createEntity();
+    <%= entityInstance %>Repository.<%= saveMethod %>(<%= persistInstance %>);
 
-  //when    
-  mockMvc.perform(get(ENTITY_API_URL_ID, <%= persistInstance %>.get<%= primaryKey.nameCapitalized %>()).header("Authorization", tokenUsuarioIntranet))
-  //then
-      .andExpect(MockMvcResultMatchers.jsonPath("$.status", is(HttpStatus.OK.name())))
-      .andExpect(ResultMatcherHelper.equalToJsonIgnoringArrayOrderAndIgnoringExtraElements("$.result", expectedJson))
-      .andDo(WireMockRestDocs.verify()
-          .wiremock(WireMock.get(WireMock.urlMatching("\\/[a-z\\d]{2}\\/<%= apiUrl %>\\/\\d+"))
-              .withHeader("Authorization", WireMock.matching("Bearer .*"))
-              )
-          )
-      .andDo(MockMvcRestDocumentation.document(documentPath, SpringCloudContractRestDocs.dslContract()));
-}
+    int databaseSizeBeforeDelete = <%= entityInstance %>Repository.findAll().size();
+
+    //when
+		mockMvc
+				.perform(MockMvcRequestBuilders.delete(ENTITY_API_URL_ID, <%= persistInstance %>.get<%= primaryKey.nameCapitalized %>()).header("Authorization", tokenUsuarioIntranet))
+        //then
+				.andExpect(MockMvcResultMatchers.jsonPath("$.status", is(HttpStatus.OK.name())))
+				.andDo(WireMockRestDocs.verify()
+						.wiremock(WireMock.delete(WireMock.urlMatching("\\/[a-z\\d]{2}\\/<%= apiUrl %>\\/\\d+"))
+								.withHeader("Authorization", WireMock.matching("Bearer .*"))
+								)
+						)
+				.andDo(MockMvcRestDocumentation.document(documentPath, SpringCloudContractRestDocs.dslContract()));
+
+    List<<%= persistClass %>> <%= persistInstance %>List = <%= entityInstance %>Repository.findAll();
+    assertThat(<%= persistInstance %>List).hasSize(databaseSizeBeforeDelete - 1);        
+	}    
 
 <%# Method to create the entities %>
 <%_ ['DEFAULT_', 'UPDATED_'].forEach((fieldStatus) => { _%>
