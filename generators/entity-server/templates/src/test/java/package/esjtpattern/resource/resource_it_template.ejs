@@ -261,7 +261,52 @@ class <%= entityClass %>ResourceIT {
 		JacksonTester.initFields(this, om);
 
     <%= entityInstance %>Repository.deleteAll();
-	}     
+	}
+
+  @Test
+	void deveriaRetornarTodasEntidades<%= entityClass %>SemConsiderarOrdem() throws Exception {
+    //given
+    <%= persistClass %> <%= persistInstance %> = createEntity();
+    <%= entityInstance %>Repository.<%= saveMethod %>(<%= persistInstance %>);
+    <%= dtoClass %> <%= dtoInstance %>First = createDtoWithId(<%= persistInstance %>.get<%= primaryKey.nameCapitalized %>());
+    <%= persistInstance %> = createEntity();
+    <%= entityInstance %>Repository.<%= saveMethod %>(<%= persistInstance %>);
+    <%= dtoClass %> <%= dtoInstance %>Second = createDtoWithId(<%= persistInstance %>.get<%= primaryKey.nameCapitalized %>());
+    String expectedJson = json<%= dtoClass %>List.write(Arrays.asList(<%= dtoInstance %>First, <%= dtoInstance %>Second)).getJson();        
+
+		//when
+		mockMvc
+				.perform(MockMvcRequestBuilders.get(ENTITY_API_URL).header("Authorization", tokenUsuarioIntranet))
+    //then
+				.andExpect(MockMvcResultMatchers.jsonPath("$.status", is(HttpStatus.OK.name())))
+				.andExpect(ResultMatcherHelper.equalToJsonIgnoringArrayOrderAndIgnoringExtraElements("$.result", expectedJson))				
+				.andDo(WireMockRestDocs.verify()
+						.wiremock(WireMock.get(WireMock.urlMatching("\\/[a-z\\d]{2}\\/<%= apiUrl %>"))
+								.withHeader("Authorization", WireMock.matching("Bearer .*"))
+								)
+						)
+				.andDo(MockMvcRestDocumentation.document(documentPath, SpringCloudContractRestDocs.dslContract()));
+	}
+
+  @Test
+  void deveriaRetornar<%= entityClass %>PeloId() throws Exception {
+    //given
+    <%= persistClass %> <%= persistInstance %> = createEntity();
+    <%= entityInstance %>Repository.<%= saveMethod %>(<%= persistInstance %>);
+    String expectedJson = json<%= dtoClass %>.write(createDtoWithId(<%= persistInstance %>.get<%= primaryKey.nameCapitalized %>())).getJson();
+
+    //when    
+    mockMvc.perform(get(ENTITY_API_URL_ID, <%= persistInstance %>.get<%= primaryKey.nameCapitalized %>()).header("Authorization", tokenUsuarioIntranet))
+    //then
+        .andExpect(MockMvcResultMatchers.jsonPath("$.status", is(HttpStatus.OK.name())))
+        .andExpect(ResultMatcherHelper.equalToJsonIgnoringArrayOrderAndIgnoringExtraElements("$.result", expectedJson))
+        .andDo(WireMockRestDocs.verify()
+            .wiremock(WireMock.get(WireMock.urlMatching("\\/[a-z\\d]{2}\\/<%= apiUrl %>\\/\\d+"))
+                .withHeader("Authorization", WireMock.matching("Bearer .*"))
+                )
+            )
+        .andDo(MockMvcRestDocumentation.document(documentPath, SpringCloudContractRestDocs.dslContract()));
+  }
 
   @Test
   void deveriaInserir<%= entityClass %>() throws Exception {
@@ -302,51 +347,6 @@ class <%= entityClass %>ResourceIT {
                       )
               .andDo(MockMvcRestDocumentation.document(documentPath, SpringCloudContractRestDocs.dslContract()));
   }
-
-  @Test
-  void deveriaRetornar<%= entityClass %>PeloId() throws Exception {
-    //given
-    <%= persistClass %> <%= persistInstance %> = createEntity();
-    <%= entityInstance %>Repository.<%= saveMethod %>(<%= persistInstance %>);
-    String expectedJson = json<%= dtoClass %>.write(createDtoWithId(<%= persistInstance %>.get<%= primaryKey.nameCapitalized %>())).getJson();
-
-    //when    
-    mockMvc.perform(get(ENTITY_API_URL_ID, <%= persistInstance %>.get<%= primaryKey.nameCapitalized %>()).header("Authorization", tokenUsuarioIntranet))
-    //then
-        .andExpect(MockMvcResultMatchers.jsonPath("$.status", is(HttpStatus.OK.name())))
-        .andExpect(ResultMatcherHelper.equalToJsonIgnoringArrayOrderAndIgnoringExtraElements("$.result", expectedJson))
-        .andDo(WireMockRestDocs.verify()
-            .wiremock(WireMock.get(WireMock.urlMatching("\\/[a-z\\d]{2}\\/<%= apiUrl %>\\/\\d+"))
-                .withHeader("Authorization", WireMock.matching("Bearer .*"))
-                )
-            )
-        .andDo(MockMvcRestDocumentation.document(documentPath, SpringCloudContractRestDocs.dslContract()));
-  }
-
-  @Test
-	void deveriaRetornarTodasEntidades<%= entityClass %>SemConsiderarOrdem() throws Exception {
-    //given
-    <%= persistClass %> <%= persistInstance %> = createEntity();
-    <%= entityInstance %>Repository.<%= saveMethod %>(<%= persistInstance %>);
-    <%= dtoClass %> <%= dtoInstance %>First = createDtoWithId(<%= persistInstance %>.get<%= primaryKey.nameCapitalized %>());
-    <%= persistInstance %> = createEntity();
-    <%= entityInstance %>Repository.<%= saveMethod %>(<%= persistInstance %>);
-    <%= dtoClass %> <%= dtoInstance %>Second = createDtoWithId(<%= persistInstance %>.get<%= primaryKey.nameCapitalized %>());
-    String expectedJson = json<%= dtoClass %>List.write(Arrays.asList(<%= dtoInstance %>First, <%= dtoInstance %>Second)).getJson();        
-
-		//when
-		mockMvc
-				.perform(MockMvcRequestBuilders.get(ENTITY_API_URL).header("Authorization", tokenUsuarioIntranet))
-    //then
-				.andExpect(MockMvcResultMatchers.jsonPath("$.status", is(HttpStatus.OK.name())))
-				.andExpect(ResultMatcherHelper.equalToJsonIgnoringArrayOrderAndIgnoringExtraElements("$.result", expectedJson))				
-				.andDo(WireMockRestDocs.verify()
-						.wiremock(WireMock.get(WireMock.urlMatching("\\/[a-z\\d]{2}\\/<%= apiUrl %>"))
-								.withHeader("Authorization", WireMock.matching("Bearer .*"))
-								)
-						)
-				.andDo(MockMvcRestDocumentation.document(documentPath, SpringCloudContractRestDocs.dslContract()));
-	}
 
 	@Test
 	void deveriaAtualizar<%= entityClass %>() throws Exception {
