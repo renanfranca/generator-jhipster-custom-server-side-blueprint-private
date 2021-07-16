@@ -89,16 +89,19 @@ module.exports = class extends EntityGenerator {
                 const entity = this.context;
 
                 this.context.fields.forEach(field => {
-                  this._prepareColumnAnnotationFieldForTemplates(entity, field, this);
+                  this._prepareColumnAnnotationFieldForTemplates(entity, field, this);                  
                 });
             }
         };
         const customPostPhaseSteps = {
             myCustomPostPreparingFieldsStep() {
                 // Stuff to do AFTER the JHipster steps
+                const entity = this.context;
+
                 this.context.fields.forEach(field => {
                   this._prepareGeneratedValueAnnotationPrimaryKey(field);
                 });
+                this._prepareNewFieldTypeAndNewFieldTypeImportFieldForTemplates(entity, this.context.fields, this);                  
             }
         };
         return {
@@ -204,6 +207,45 @@ module.exports = class extends EntityGenerator {
             field.columnName = field.fieldNameAsDatabaseColumn;
         }
         return field;
+    }
+
+    /**
+     * Use the custom options defined at JDL as a Custom field annotations to support new field type and how to import it.
+     * The new field type will replace any type that you use as a placeholder. Both @newFieldType and @newFieldTypeImport must
+     * be defined to it works
+     * Ex:
+     * entity ExampleClasse(ExampleTable) { @newFieldTypeImport(java_time_LocalDateTime) @newFieldType(LocalDateTime) exampleNewField String }
+     * 
+     * @param {*} entityWithConfig 
+     * @param {*} field 
+     * @param {*} generator
+     */
+    _prepareNewFieldTypeAndNewFieldTypeImportFieldForTemplates(entityWithConfig, fields, generator) {
+        let importsNewFieldsType = [];
+        fields.forEach(field => {
+            if (field.options && field.options.newFieldType && field.options.newFieldTypeImport) {
+                let hasNewFieldTypeValue = typeof field.options.newFieldType == 'string' && field.options.newFieldType.length > 0;
+                let hasNewFieldTypeImportValue = typeof field.options.newFieldTypeImport == 'string' && field.options.newFieldTypeImport.length > 0;
+                if (!hasNewFieldTypeValue) {
+                    throw new Error('The annotation @newFieldType must have a value. Ex: @newFieldType(LocalDateTime)');
+                }
+                if (!hasNewFieldTypeImportValue) {
+                    throw new Error('The annotation @newFieldTypeImport must have a value. Ex: @newFieldTypeImport(java_time_LocalDateTime)');
+                }
+                field.fieldType = field.options.newFieldType; //Entity type
+                field.reference.type = field.options.newFieldType; //DTO type
+                importsNewFieldsType.push(field.options.newFieldTypeImport.replace(/_/g, '.'));
+            }
+        });
+
+        generator.debug('DEBUG!',
+            `hasImportsNewFieldsType '${importsNewFieldsType.length > 0}' entityImportsNewFieldsType: '${importsNewFieldsType}`
+          );
+        
+        _.defaults(entityWithConfig, {
+            hasImportsNewFieldsType: importsNewFieldsType.length > 0,
+            entityImportsNewFieldsType: importsNewFieldsType,
+        });            
     }
 
     /**
