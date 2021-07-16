@@ -63,11 +63,17 @@ import javax.persistence.Lob;
 <%_ Object.keys(uniqueEnums).forEach(function(element) { _%>
 import <%= packageName %>.domain.enumeration.<%= element %>;
 <%_ }); _%>
+
 <%_ if (lombok) { _%>
 import lombok.Data;
 import lombok.Builder;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+<%_ } _%>
+<%_ if (hasImportsNewFieldsType) { _%>
+  <%_ entityImportsNewFieldsType.forEach(importNewType => { _%>
+import <%= importNewType %>;    
+  <%_ }); _%>
 <%_ } _%>
 
 <%_ if (!noCodeComment) { _%>

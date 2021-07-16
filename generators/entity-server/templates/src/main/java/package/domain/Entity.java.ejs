@@ -141,6 +141,12 @@ import lombok.Builder;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 <%_ } _%>
+<%_ if (hasImportsNewFieldsType) { _%>
+  <%_ entityImportsNewFieldsType.forEach(importNewType => { _%>
+import <%= importNewType %>;    
+  <%_ }); _%>
+<%_ } _%>
+
 <%_ if (typeof javadoc == 'undefined') { _%>
   <%_ if (!noCodeComment) { _%>
 /**
