@@ -1,0 +1,30 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "RENAN BLUEPRINT jhipster import-jdl testedebug",
+            "program": "${workspaceFolder}/../../../contributing/generator-jhipster/cli/jhipster.js",
+            "args": [
+                "import-jdl",
+                "--inline",
+                //"entity RenanClasse(RenanTable) { @column(nm_teste) testeString String }",
+                // "@noCodeComment entity RenanClasse(RenanTable) { @generatedValue(identity) @column(cod_renan) id Long, @column(nm_teste) testeString String }",
+                "@esjtPattern entity RenanClasse(RenanTable) { testeString String } service all with serviceClass",
+                // "application { config { noCommentOrJavadoc true }}",
+                "-d",
+                "--blueprints",
+                "custom-server-side-blueprint",
+				"--skip-jhipster-dependencies",
+				"--skip-checks"
+            ],
+            "cwd": "${workspaceFolder}/../../../Projetos/testedebug-jhipster/",
+            "console": "externalTerminal"            
+            // "outFiles": ["${workspaceFolder}/cli/**/*.js","${workspaceFolder}/generators/**/*.js","${workspaceFolder}/jdl/**/*.js"]
+        },
+	]
+}
