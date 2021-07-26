@@ -14,7 +14,6 @@ _%>
 import <%= packageName %>.domain.repository.<%= entityClass %>Repository;
 import <%= packageName %>.api.dto.<%= dtoClass %>;
 import <%= packageName %>.api.dto.<%= dtoClass %>.<%= dtoClass %>Builder;
-import <%= packageName %>.api.util.ReplaceCamelCase;
 import <%= packageName %>.api.util.ResultMatcherHelper;
 import <%= packageName %>.domain.model.<%= entityClass %>;
 
@@ -66,7 +65,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.WireMock;
 
 @ExtendWith(value = { SpringExtension.class })
-@DisplayNameGeneration(ReplaceCamelCase.class)
 @SpringBootTest
 @AutoConfigureJsonTesters
 @AutoConfigureRestDocs
