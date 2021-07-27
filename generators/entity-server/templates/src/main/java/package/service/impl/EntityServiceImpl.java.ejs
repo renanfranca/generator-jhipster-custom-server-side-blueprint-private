@@ -89,7 +89,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 <%_ } _%>
 <%_ if (lombok) { _%>
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 <%_ } _%>
 <%_ if (esjtPattern) { _%>
 import <%= packageName %>.api.exception.NotFoundException;
@@ -107,7 +107,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 @Service<% if (databaseTypeSql) {
  if (!esjtPattern) { %>@Transactional<% } } %>
 <%_ if (lombok) { _%>
-@AllArgsConstructor
+@RequiredArgsConstructor
 <%_ } _%>
 public class <%= serviceClassName %><% if (serviceImpl) { %> implements <%= entityClass %>Service<% } %> {
 
